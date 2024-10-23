@@ -13,12 +13,20 @@ def parse_arguments() -> argparse.Namespace:
     )
     parser.add_argument(
         '--model',   
-        default= r".\model\fireV2.onnx", 
+        # default= r".\model\fireV2.onnx", # from last semester
+        default= r"model/fireV2.onnx", 
+        # default= r"model/fireV2.pt", 
+        # default= r"model/fire_detection.pt", 
         type=str
     )
     parser.add_argument(
+        # "--source", 
+        # default="0", # accesses the webcam of your computer 
+        # type=str
         "--source", 
-        default="0", 
+        default="test_folder/test_video.mp4",
+        help="Path to the input video file",
+        # default="0", # accesses the webcam of your computer 
         type=str
     )
     args = parser.parse_args()
