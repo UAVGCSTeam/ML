@@ -9,8 +9,8 @@ from ultralytics.data.augment import LetterBox
 import time
 class Yolov8:
     def __init__(self):
-        self.conf = 0.25  # confidence threshold
-        self.iou = 0.45  # NMS IoU threshold
+        self.conf = 0.25 # confidence threshold (originally 0.25)
+        self.iou = 0.45 # NMS IoU threshold (originally 0.45)
         self.data = "coco.yaml"
         self.imgsz = (640, 640)  # (320, 192) or (416, 256) or (608, 352) for (height, width)
         self.max_det = 1000  # maximum number of detections per image
