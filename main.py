@@ -30,9 +30,9 @@ def parse_arguments() -> argparse.Namespace:
         # default="test_folder/test_video5.mp4",
         # default="test_folder/test_video6.mp4",
         # default="test_folder/test_video7.mp4",
-        # default="test_folder/test_video8.mp4",
+        default="test_folder/test_video8.mp4",
         # default="test_folder/test_video9.mp4",
-        default="test_folder/test_video10.mp4",
+        # default="test_folder/test_video10.mp4",
         # default=0, # accesses the webcam of your computer 
         help="Path to the input video file",
         type=str
