@@ -5,12 +5,15 @@ import argparse
 
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description = 'YoloV8 Fire Detection')
+    
+    # camera resolution
     parser.add_argument(
         "--webcam-resolution",
         default=[1280,720], # originally 1280,720
         type =int,
         nargs= 2
     )
+    # model selection
     parser.add_argument(
         '--model',   
         # default= r"model/fire_detection.onnx", 
@@ -19,10 +22,11 @@ def parse_arguments() -> argparse.Namespace:
         # default= r"model/fireV2.pt", 
         type=str
     )
+    # footage source
     parser.add_argument(
         "--source", 
         # type=str
-        # default="test_folder/test_img.jpg",
+        default="test_folder/test_img.jpg",
         # default="test_folder/thermal_test.jpg",
         # default="test_folder/test_video.mp4",
         # default="test_folder/test_video2.mp4", # Super far away - most likely not pracitcal
@@ -31,7 +35,7 @@ def parse_arguments() -> argparse.Namespace:
         # default="test_folder/test_video5.mp4", # tractor in the video
         # default="test_folder/test_video6.mp4",
         # default="test_folder/test_video7.mp4",
-        default="test_folder/test_video8.mp4", # clear fire line
+        # default="test_folder/test_video8.mp4", # clear fire line
         # default="test_folder/test_video9.mp4",
         # default="test_folder/test_video10.mp4", # tree on fire
         # default=0, # accesses the webcam of your computer 
@@ -70,7 +74,7 @@ def main():
         # frame = cv2.resize(frame, (640, 640)) # original at 640 x 640  
         cv2.imshow("frame", frame)
 
-        # press Esc to close the window
+        # press `esc` to close the window
         if (cv2.waitKey(30) == 27):
             break
 
