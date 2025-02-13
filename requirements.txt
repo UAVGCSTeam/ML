@@ -1,0 +1,9 @@
+yolov8
+cv2
+numpy
+argparse
+ultralytics.utils
+ultralytics.nn.autobackend
+ultralytics.data.augment
+torch 
+time
