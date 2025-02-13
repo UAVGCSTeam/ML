@@ -29,6 +29,8 @@ import cv2
 import numpy as np
 from ultralytics.data.augment import LetterBox
 import time
+
+
 class Yolov8:
     def __init__(self):
         self.conf = 0.20 # confidence threshold (originally 0.25)
@@ -36,17 +38,16 @@ class Yolov8:
         self.data = "coco.yaml"
         self.imgsz = (640, 640)  # (320, 192) or (416, 256) or (608, 352) for (height, width)
         self.max_det = 1000  # maximum number of detections per image
-        self.device = "cpu"
         self.dataset = ""
         self.names = ""
-        self.weights = "yolov8n.pt" # Path to model weights
         self.half = False
         self.dnn = False
         self.agnostic_nms = False
         self.model = None
         self.classes = None
 
-    def set_up_model(self, weights):
+    def set_up_model(self, weights, newDevice):
+        self.device = newDevice
         device = select_device(self.device)
         self.weights = weights
         # self.half &= self.device.type != 'cpu'  # half precision only supported on CUDA
@@ -95,25 +96,3 @@ class Yolov8:
         print("inference_time: ", int((time.time() - pre_time)*1000), "ms")
         result = self.postprocess(preds, img, image_copy)
         return result
-    
-if __name__ == "__main__":
-    yolov8 = Yolov8()
-    yolov8.set_up_model("yolov8n.pt")
-    # path = "D:/yolov5/test.mp4" # I commented this old lsat semester path out -Carlos
-    path = "./test_folder/test_video.mp4" # I added this new path -Carlos
-    cap = cv2.VideoCapture(path)
-    yolov8.model.warmup(imgsz=(1 , 3, *yolov8.imgsz))
-    while True:
-        ret, frame = cap.read()
-        if not ret:
-           cap = cv2.VideoCapture(path)
-           continue
-        results = yolov8.inference(frame)
-        for result in results:
-            x1, y1, x2, y2, conf, cls = result
-            cv2.rectangle(frame, (int(x1), int(y1)), (int(x2), int(y2)), (0, 255, 0), 2)
-            cv2.putText(frame, str(yolov8.names[int(cls)]), (int(x1), int(y1)), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-        cv2.imshow("frame", frame)
-        # press Esc to close the window
-        if (cv2.waitKey(30) == 27):
-            break
