@@ -3,6 +3,11 @@ import cv2
 import numpy as np
 import argparse
 
+
+# === Parse Arguments ============================================================
+    # Parse the command line arguments for webcam resolution, model selection, and 
+    # footage selection.
+# ================================================================================
 def parse_arguments() -> argparse.Namespace:
     parser = argparse.ArgumentParser(description = 'YoloV8 Fire Detection')
     
@@ -46,8 +51,9 @@ def parse_arguments() -> argparse.Namespace:
     args = parser.parse_args()
     return args
 
-def main():
 
+
+def main():
     # Get information
     args = parse_arguments()
     path = args.source
