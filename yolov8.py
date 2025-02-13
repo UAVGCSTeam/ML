@@ -1,3 +1,25 @@
+# DEFINITION of the Yolov8 Class: This file encapsulates the functionality related to the
+# YOLOv8 model. It defines a class that handles model setup, preprocessing, inference, 
+# and postprocessing of images or video frames for object detection.
+
+
+# === Model Configuration and Initialization:
+    # Sets default parameters like confidence threshold, IoU threshold, image sizes, 
+    # device selection (CPU or GPU), and model weights.
+    # Uses the AutoBackend from Ultralytics to load and configure the YOLOv8 model.
+
+# === Preprocessing and Postprocessing:
+    # Preprocessing: Resizes images using LetterBox, normalizes pixel values, and prepares 
+    # the tensor for model input.
+    # Postprocessing: Applies Non-Max Suppression (NMS) to filter detections and scales 
+    # bounding boxes back to the original image size.
+
+# === Inference Method:
+    # Runs the model on preprocessed images and processes the raw predictions to return 
+    # usable detection results, including bounding boxes, confidence scores, and class labels.
+
+
+
 from ultralytics.utils.torch_utils import select_device, smart_inference_mode
 from ultralytics.utils.checks import check_imgsz
 from ultralytics.nn.autobackend import AutoBackend
@@ -17,7 +39,7 @@ class Yolov8:
         self.device = "cpu"
         self.dataset = ""
         self.names = ""
-        self.weights = "yolov8n.pt"
+        self.weights = "yolov8n.pt" # Path to model weights
         self.half = False
         self.dnn = False
         self.agnostic_nms = False
