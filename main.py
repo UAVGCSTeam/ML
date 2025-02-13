@@ -1,4 +1,4 @@
-from yolov8 import Yolov8 # import the yolov8.py file
+from yolov8 import Yolov8 # import the yolov8.py header file
 import cv2
 import numpy as np
 import argparse
