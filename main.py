@@ -4,20 +4,31 @@ import numpy as np
 import argparse
 
 
-# === Parse Arguments ============================================================
-    # Parse the command line arguments for webcam resolution, model selection, and 
-    # footage selection.
-# ================================================================================
 def parse_arguments() -> argparse.Namespace:
+    """
+    === Parse Arguments ============================================================
+        Parse the command line arguments for webcam resolution, model selection, and 
+        footage selection.
+    ================================================================================
+    """
     parser = argparse.ArgumentParser(description = 'YoloV8 Fire Detection')
     
     # camera resolution
+    # parser.add_argument(
+    #     "--webcam-resolution",
+    #     default=[1280,720], # originally 1280,720
+    #     type=int,
+    #     nargs= 2
+    # )
+
+    # select compute device 
     parser.add_argument(
-        "--webcam-resolution",
-        default=[1280,720], # originally 1280,720
-        type =int,
-        nargs= 2
+        "--device",
+        default="cpu",
+        # default="gpu",
+        type=str,
     )
+
     # model selection
     parser.add_argument(
         # Select the trained weights to use for inference.
@@ -56,13 +67,14 @@ def parse_arguments() -> argparse.Namespace:
 def main():
     # Get information
     args = parse_arguments()
-    path = args.source
+    device = args.device
     model = args.model
+    path = args.source
 
 
     # Set up the Yolo model
     fire_model = Yolov8()
-    fire_model.set_up_model(model)
+    fire_model.set_up_model(model, device)
     fire_model.model.warmup(imgsz=(1 , 3, *fire_model.imgsz))
     cap = cv2.VideoCapture(path)
 
