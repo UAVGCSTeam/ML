@@ -54,7 +54,6 @@ class Yolov8:
         self.model = AutoBackend(self.weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
         self.imgsz = check_imgsz(self.imgsz, stride=self.model.stride, min_dim=2)  # check image size
         self.names = self.model.names
-        self.device = device
         self.model.eval()
 
     def preprocess(self, img, im0):
