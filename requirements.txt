@@ -6,4 +6,5 @@ ultralytics.utils
 ultralytics.nn.autobackend
 ultralytics.data.augment
 torch 
+torch-tensorrt
 time
