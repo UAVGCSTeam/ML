@@ -49,14 +49,18 @@ int main() {
 
     if (tcsetattr(fd, TCSANOW, &options) != 0) {
         std::cerr << "Error setting port attributes ("
-                  << strerror(errno) << ")" << std::endl;
+                  << strerror(errno) << ")" << std::endl;   
         close(fd);
         return 1;
     }
 
+
+    //*****************************************************************************/
+    //     Main loop to read data from the LIDAR and print it to the screen       */
+    //*****************************************************************************/
     std::cout << "Reading from " << device << " at 115200 baud... (Press Ctrl+C to stop)\n";
 
-    unsigned char frame[9];
+    unsigned char frame[9]; // NOTE: this array is not FULLY used. Only used for adding upper and lower bits of signal and distance
     int frame_index = 0;
     unsigned char byte;
     unsigned char checksum;
@@ -67,59 +71,56 @@ int main() {
         ssize_t bytes_read = read(fd, &byte, 1);
 
         if (bytes_read > 0) {
-            // Search for frame header (0x59, 0x59)
             if (frame_index == 0 && byte == 0x59) {
-                frame[0] = byte;
+                // Search for frame header (0x59)
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum = byte;
-                frame_index++;
             } else if (frame_index == 1 && byte == 0x59) {
-                frame[1] = byte;
+                // Search for frame header (0x59)
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum += byte;
-                frame_index++;
             } else if (frame_index == 2) {
-                frame[2] = byte;
+                // distance - lower 8 bits
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum += byte;
-                frame_index++;
             } else if (frame_index == 3) {
-                frame[3] = byte;
+                // distance - upper 8 bits
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum += byte;
-                frame_index++;
-                // Extract distance (little endian: low byte first)
-                distance = frame[2] | (frame[3] << 8);
+                distance = frame[2] | (frame[3] << 8); // Extract distance (little endian: low byte first)
             } else if (frame_index == 4) {
-                frame[4] = byte;
+                // signal strength - lower 8 bits
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum += byte;
-                frame_index++;
             } else if (frame_index == 5) {
-                frame[5] = byte;
+                // signal strength - upper 8 bits
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
                 checksum += byte;
-                frame_index++;
-                // Extract signal strength (little endian: low byte first)
-                strength = frame[4] | (frame[5] << 8);
-            } else if (frame_index == 6) {
-                frame[6] = byte;
-                checksum += byte;
-                frame_index++;
-            } else if (frame_index == 7) {
-                frame[7] = byte;
-                checksum += byte;
-                frame_index++;
+                strength = frame[4] | (frame[5] << 8); // Extract signal strength (little endian: low byte first)
+            } else if (frame_index == 6 || frame_index == 7) {
+                // skip bytes 6 and 7 (0x0 values)
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
             } else if (frame_index == 8) {
-                frame[8] = byte;
-
-                // If we have a complete frame
-                if (frame_index == 9) {
-                    // Validate checksum
-                    if (checksum == byte) {
-                        std::cout << "Distance: " << distance << " cm, ";
-                        std::cout << "Signal: " << strength << std::endl;
-                    } else {
-                        std::cout << "Checksum error" << std::endl;
-                    }
-
-                    // Reset for next frame
-                    frame_index = 0;
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
+                
+                // If we have a complete frame, validate checksum
+                if (checksum == byte) {
+                    std::cout << "Distance: " << distance << " cm, ";
+                    std::cout << "Signal: " << strength << std::endl;
+                } else {
+                    std::cout << "Checksum error" << std::endl;
                 }
+
+                // Reset for next frame
+                frame_index = 0;
             } else {
                 // Invalid data, reset frame index
                 frame_index = 0;
