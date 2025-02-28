@@ -1,9 +1,7 @@
 opencv-python
-numpy
+numpy==2.0
 argparse
 ultralytics
 torch 
 torchvision
-torchaudio
-# torch-tensorrt --index-url https://pypi.ngc.nvidia.com # only needed for the torch to tensorrt conversion, not if running the model as standard
-time
+# torch-tensorrt --index-url https://pypi.ngc.nvidia.com # only needed for the torch to tensorrt conversion, not if running the model as stand

@@ -1,2 +1,0 @@
-https://www.fdxlabs.com/calculate-x-y-z-real-world-coordinates-from-a-single-camera-using-opencv/
-https://automaticaddison.com/how-to-convert-camera-pixels-to-real-world-coordinates/ 

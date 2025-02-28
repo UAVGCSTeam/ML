@@ -34,9 +34,9 @@ def parse_arguments() -> argparse.Namespace:
         # Select the trained weights to use for inference.
         '--model',   
         # default= r"model/fire_detection.onnx", 
-        default= r"model/fire_detection.pt", # shittier
+        # default= r"model/fire_detection.pt", # shittier
         # default= r"model/fireV2.onnx", 
-        # default= r"model/fireV2.pt", 
+        default= r"model/fireV2.pt", 
         type=str
     )
     # footage source
@@ -51,8 +51,8 @@ def parse_arguments() -> argparse.Namespace:
         # default="test_folder/test_video4.mp4",
         # default="test_folder/test_video5.mp4", # tractor in the video
         # default="test_folder/test_video6.mp4",
-        # default="test_folder/test_video7.mp4",
-        default="test_folder/test_video8.mp4", # clear fire line
+        default="test_folder/test_video7.mp4",
+        # default="test_folder/test_video8.mp4", # clear fire line
         # default="test_folder/test_video9.mp4",
         # default="test_folder/test_video10.mp4", # tree on fire
         # default=0, # accesses the webcam of your computer 

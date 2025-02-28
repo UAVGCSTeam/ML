@@ -5,12 +5,14 @@ import time
 import cv2 
 from yolov8 import Yolov8 # import the yolov8.py header file
 import torch 
-import torch_tensorrt
+import torchvision
+import torchaudio
+import tensorrt
 
 def main():
     # import pytorch model
     myModel = Yolov8()
-    myModel.set_up_model('./model/fireV2.pt', 'cpu')
+    myModel.set_up_model('./model/fireV2.onnx', '0')
     myModel.model.warmup(imgsz=(1 , 3, *myModel.imgsz))
     cap = cv2.VideoCapture('test_folder/test_image.jpg')
 
