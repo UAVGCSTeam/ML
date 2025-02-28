@@ -29,7 +29,9 @@ import cv2
 import numpy as np
 from ultralytics.data.augment import LetterBox
 import time
-
+import tensorrt as trt
+import pycuda.driver as cuda
+import pycuda.autoinit
 
 class Yolov8:
     def __init__(self):
@@ -45,17 +47,23 @@ class Yolov8:
         self.agnostic_nms = False
         self.model = None
         self.classes = None
+        self.trt_logger = trt.Logger(trt.Logger.INFO)
+        self.engine = None
+        self.context = None
 
     def set_up_model(self, weights, newDevice):
         self.device = newDevice
         device = select_device(self.device)
         self.weights = weights
-        # self.half &= self.device.type != 'cpu'  # half precision only supported on CUDA
-        self.model = AutoBackend(self.weights, device=device, dnn=self.dnn, data=self.data, fp16=self.half)
-        self.imgsz = check_imgsz(self.imgsz, stride=self.model.stride, min_dim=2)  # check image size
-        self.names = self.model.names
-        self.model.eval()
 
+        # Load TensorRT engine
+        with open(self.weights, 'rb') as f, trt.Runtime(self.trt_logger) as runtime:
+            self.engine = runtime.deserialize_cuda_engine(f.read())
+        self.context = self.engine.create_execution_context()
+
+        self.names = ["class1", "class2", "class3"]  # Update with your class names
+        self.model = None  # TensorRT engine is used instead
+                
     def preprocess(self, img, im0):
         img = LetterBox(self.imgsz, auto=self.model.pt, stride=self.model.stride)(image=im0)
         img = img.transpose((2, 0, 1))[::-1]  # HWC to CHW, BGR to RGB
@@ -88,10 +96,46 @@ class Yolov8:
     def inference(self, img):
         result = []
         image_copy = img.copy()
-        # cv2.imwrite("test.jpg", img)
         img = self.preprocess(img, image_copy)
         pre_time = time.time()
-        preds = self.model(img, augment=False, visualize = False)
-        print("inference_time: ", int((time.time() - pre_time)*1000), "ms")
+
+        # Allocate buffers
+        inputs, outputs, bindings, stream = self.allocate_buffers()
+
+        # Transfer input data to the GPU
+        cuda.memcpy_htod_async(inputs[0].device, img.numpy(), stream)
+
+        # Run inference
+        self.context.execute_async_v2(bindings=bindings, stream_handle=stream.handle)
+
+        # Transfer predictions back from the GPU
+        cuda.memcpy_dtoh_async(outputs[0].host, outputs[0].device, stream)
+        stream.synchronize()
+
+        preds = torch.tensor(outputs[0].host).to(self.device)
+        print("inference_time: ", int((time.time() - pre_time) * 1000), "ms")
         result = self.postprocess(preds, img, image_copy)
         return result
+
+    def allocate_buffers(self):
+        inputs = []
+        outputs = []
+        bindings = []
+        stream = cuda.Stream()
+
+        for binding in self.engine:
+            size = trt.volume(self.engine.get_binding_shape(binding)) * self.engine.max_batch_size
+            dtype = trt.nptype(self.engine.get_binding_dtype(binding))
+            host_mem = cuda.pagelocked_empty(size, dtype)
+            device_mem = cuda.mem_alloc(host_mem.nbytes)
+            bindings.append(int(device_mem))
+            if self.engine.binding_is_input(binding):
+                inputs.append(HostDeviceMem(host_mem, device_mem))
+            else:
+                outputs.append(HostDeviceMem(host_mem, device_mem))
+        return inputs, outputs, bindings, stream
+
+class HostDeviceMem:
+    def __init__(self, host_mem, device_mem):
+        self.host = host_mem
+        self.device = device_mem
