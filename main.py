@@ -1,4 +1,4 @@
-from mlsetup import Yolov8 # import the yolov8.py file
+from mlsetup import MLSetup # import the yolov8.py file
 import cv2
 import numpy as np
 import argparse
@@ -46,10 +46,10 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         # Select the trained weights to use for inference.
         '--weights',   
-        # default= r"model/fire_detection.onnx", 
-        # default= r"model/fire_detection.pt", # shittier
-        default= r"model/fireV2.onnx", 
-        # default= r"model/fireV2.pt", 
+        # default= r"weights/fire_detection.onnx", 
+        # default= r"weights/fire_detection.pt", # shittier
+        default= r"weights/fireV2.onnx", 
+        # default= r"weights/fireV2.pt", 
         type=str
     )
     # footage source
@@ -83,7 +83,7 @@ def main():
     path = source_type(args.source)
 
     # Set up the Yolo model
-    fire_model = Yolov8()
+    fire_model = MLSetup()
     fire_model.set_up_model(weights, device)
     fire_model.model.warmup(imgsz=(1 , 3, *fire_model.imgsz))
     cap = cv2.VideoCapture(path)
