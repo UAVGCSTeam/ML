@@ -1,8 +1,14 @@
-from yolov8 import Yolov8 # import the yolov8.py header file
+from mlsetup import Yolov8 # import the yolov8.py file
 import cv2
 import numpy as np
 import argparse
 
+def source_type(value):
+    try:
+        if value.isdigit():
+            return int(value)
+    except ValueError:
+        return value
 
 def parse_arguments() -> argparse.Namespace:
     """
@@ -24,19 +30,26 @@ def parse_arguments() -> argparse.Namespace:
     # select compute device 
     parser.add_argument(
         "--device",
-        default="cpu",
-        # default="gpu",
-        type=str,
+            default="cpu",
+            # default="gpu",
+            type=str,
+    )
+
+    parser.add_argument(
+        "--webcam-resolution",
+            default=[1280,720], # originally 1280,720
+            type=int,
+            nargs=2
     )
 
     # model selection
     parser.add_argument(
         # Select the trained weights to use for inference.
-        '--model',   
+        '--weights',   
         # default= r"model/fire_detection.onnx", 
         # default= r"model/fire_detection.pt", # shittier
-        # default= r"model/fireV2.onnx", 
-        default= r"model/fireV2.pt", 
+        default= r"model/fireV2.onnx", 
+        # default= r"model/fireV2.pt", 
         type=str
     )
     # footage source
@@ -62,19 +75,16 @@ def parse_arguments() -> argparse.Namespace:
     args = parser.parse_args()
     return args
 
-
-
 def main():
     # Get information
     args = parse_arguments()
     device = args.device
-    model = args.model
-    path = args.source
-
+    weights = args.weights
+    path = source_type(args.source)
 
     # Set up the Yolo model
     fire_model = Yolov8()
-    fire_model.set_up_model(model, device)
+    fire_model.set_up_model(weights, device)
     fire_model.model.warmup(imgsz=(1 , 3, *fire_model.imgsz))
     cap = cv2.VideoCapture(path)
 
