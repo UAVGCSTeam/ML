@@ -8,6 +8,7 @@
 
 int main() {
     const char* device = "/dev/ttyUSB1";
+    // const char* device = "/dev/ttyp1";
 
     // creates a file descriptor object based off the port given
     int fd = open(device, O_RDWR | O_NOCTTY | O_NDELAY); 
@@ -71,11 +72,16 @@ int main() {
         ssize_t bytes_read = read(fd, &byte, 1);
 
         if (bytes_read > 0) {
-            if ((frame_index == 0 && byte == 0x59) || (frame_index == 1 && byte == 0x59)) {
+            if (frame_index == 0 && byte == 0x59) {
                 // Search for frame header (0x59)
                 // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
                 frame[frame_index++] = byte;
                 checksum = byte;
+            } else if (frame_index == 1 && byte == 0x59) {
+                // Search for frame header (0x59)
+                // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
+                frame[frame_index++] = byte;
+                checksum += byte;
             } else if (frame_index == 2) {
                 // distance - lower 8 bits
                 // std::cout << "Byte " << frame_index << " = 0x" << std::hex << (int)byte << std::dec << std::endl;
