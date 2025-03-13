@@ -1,8 +1,14 @@
-from yolov8 import Yolov8 # import the yolov8.py file
+from mlsetup import Yolov8 # import the yolov8.py file
 import cv2
 import numpy as np
 import argparse
 
+def source_type(value):
+    try:
+        if value.isdigit():
+            return int(value)
+    except ValueError:
+        return value
 
 # === Parse Arguments ============================================================
     # Parse the command line arguments for webcam resolution, model selection, and 
@@ -15,16 +21,16 @@ def parse_arguments() -> argparse.Namespace:
     parser.add_argument(
         "--webcam-resolution",
         default=[1280,720], # originally 1280,720
-        type =int,
-        nargs= 2
+        type=int,
+        nargs=2
     )
     # model selection
     parser.add_argument(
         # Select the trained weights to use for inference.
         '--model',   
         # default= r"model/fire_detection.onnx", 
-        default= r"model/fire_detection.pt", # shittier
-        # default= r"model/fireV2.onnx", 
+        # default= r"model/fire_detection.pt", # shittier
+        default= r"model/fireV2.onnx", 
         # default= r"model/fireV2.pt", 
         type=str
     )
@@ -51,14 +57,11 @@ def parse_arguments() -> argparse.Namespace:
     args = parser.parse_args()
     return args
 
-
-
 def main():
     # Get information
     args = parse_arguments()
-    path = args.source
+    path = source_type(args.source)
     model = args.model
-
 
     # Set up the Yolo model
     fire_model = Yolov8()
